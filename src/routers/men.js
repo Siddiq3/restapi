@@ -2,7 +2,7 @@ const express = require("express");
 const router = new express.Router();
 const MenRanking = require('../models/mens');
 router.get('/', async (req, res) => {
-    res.send('hello world...');
+    res.send('siddiqkolimi');
 })
 
 
