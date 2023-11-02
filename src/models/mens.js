@@ -1,7 +1,54 @@
 const mongoose = require("mongoose");
 
 const menSchema = new mongoose.Schema({
-    image: {
+
+
+    ranking: {
+        type: Number,
+        required: true
+
+    },
+    name: {
+        type: String,
+        required: true,
+
+
+    },
+
+    dob: {
+        type: Date,
+        required: true,
+
+
+    },
+
+    country: {
+        type: String,
+        required: true,
+
+
+    },
+
+    score: {
+        type: Number,
+        required: true,
+
+
+    },
+    event: {
+        type: String,
+        default: "100m"
+
+    },
+
+
+})
+//creating collection
+const MensRanking = new mongoose.model("MenRanking", menSchema)
+
+module.exports = MensRanking;
+
+/*image: {
         type: String,
         required: true,
         unique: true
@@ -50,10 +97,4 @@ const menSchema = new mongoose.Schema({
         required: true,
         trim: true
 
-    },
-
-})
-//creating collection
-const MensRanking = new mongoose.model("MenRanking", menSchema)
-
-module.exports = MensRanking;
+    }, */
