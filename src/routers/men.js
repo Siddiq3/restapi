@@ -8,7 +8,7 @@ router.get('/', async (req, res) => {
 })
 
 
-router.post('/mens', async (req, res) => {
+router.post('/jobs', async (req, res) => {
     try {
         const addingMensRecords = new MenRanking(req.body)
         console.log(req.body);
@@ -20,7 +20,7 @@ router.post('/mens', async (req, res) => {
     }
 })
 
-router.get('/mens', async (req, res) => {
+router.get('/jobs', async (req, res) => {
     try {
         const getMens = await MenRanking.find({})
         res.send(getMens);
@@ -30,8 +30,74 @@ router.get('/mens', async (req, res) => {
     }
 })
 
+router.get('/internships', async (req, res) => {
+    try {
+        const getMens = await MenRanking.find({ type: 'internships' })
+        res.send(getMens);
+    }
+    catch (err) {
+        res.status(400).send(err);
+    }
+})
+
+
+router.get('/walk-in-drives', async (req, res) => {
+    try {
+        const getMens = await MenRanking.find({ type: 'walkindrives' })
+        res.send(getMens);
+    }
+    catch (err) {
+        res.status(400).send(err);
+    }
+})
+
+router.get('/govt-jobs', async (req, res) => {
+    try {
+        const getMens = await MenRanking.find({ type: 'govtjobs' })
+        res.send(getMens);
+    }
+    catch (err) {
+        res.status(400).send(err);
+    }
+})
+
+
+
 //individual
-router.get('/mens/:id', async (req, res) => {
+router.get('/jobs/:id', async (req, res) => {
+    try {
+
+        const getMens = await MenRanking.findById(req.params.id)
+        res.send(getMens);
+    }
+    catch (err) {
+        res.status(400).send(err);
+    }
+})
+
+router.get('/internships/:id', async (req, res) => {
+    try {
+
+        const getMens = await MenRanking.findById(req.params.id)
+        res.send(getMens);
+    }
+    catch (err) {
+        res.status(400).send(err);
+    }
+})
+
+router.get('/walk-in-drives/:id', async (req, res) => {
+    try {
+
+        const getMens = await MenRanking.findById(req.params.id)
+        res.send(getMens);
+    }
+    catch (err) {
+        res.status(400).send(err);
+    }
+})
+
+router.get('/govt-jobs/:id', async (req, res) => {
     try {
 
         const getMens = await MenRanking.findById(req.params.id)
@@ -44,7 +110,7 @@ router.get('/mens/:id', async (req, res) => {
 
 //update data from postman
 
-router.put('/mens/:id', async (req, res) => {
+router.put('/jobs/:id', async (req, res) => {
     try {
 
         const getMens = await MenRanking.findByIdAndUpdate(req.params.id, req.body)
@@ -56,7 +122,7 @@ router.put('/mens/:id', async (req, res) => {
 })
 
 
-router.delete('/mens/:id', async (req, res) => {
+router.delete('/jobs/:id', async (req, res) => {
     try {
         const { id } = req.params;
 

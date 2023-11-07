@@ -40,9 +40,17 @@ const menSchema = new mongoose.Schema({
          default: "100m"
  
      }, */
-
+    type: {
+        type: String,
+        required: true
+    },
     jobid: {
         type: Number,
+        required: true,
+
+    },
+    companylogo: {
+        type: String,
         required: true,
 
     },
@@ -99,6 +107,20 @@ const menSchema = new mongoose.Schema({
     },
 
     jobprofile: {
+        type: String,
+        required: true,
+
+
+    },
+
+    jobtypeH: {
+        type: String,
+        required: true,
+
+
+    },
+
+    jobtype: {
         type: String,
         required: true,
 
@@ -165,7 +187,7 @@ const menSchema = new mongoose.Schema({
 
     },
 
-    rolesandadres: {
+    rolesandres: {
         type: Array,
         required: true,
 
