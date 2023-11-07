@@ -1,6 +1,8 @@
 const express = require("express");
 const router = new express.Router();
 const MenRanking = require('../models/mens');
+
+
 router.get('/', async (req, res) => {
     res.send('siddiqkolimi..');
 })
@@ -29,10 +31,10 @@ router.get('/mens', async (req, res) => {
 })
 
 //individual
-router.get('/mens/:id', async (req, res) => {
+router.get('/mens/:jobtitle', async (req, res) => {
     try {
 
-        const getMens = await MenRanking.findById(req.params.id)
+        const getMens = await MenRanking.findById(req.params.jobtitle)
         res.send(getMens);
     }
     catch (err) {
@@ -53,4 +55,21 @@ router.put('/mens/:id', async (req, res) => {
     }
 })
 
+
+router.delete('/mens/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Use Mongoose to find the document by ID and delete it
+        const deletedMen = await MenRanking.findByIdAndDelete(id);
+
+        if (!deletedMen) {
+            return res.status(404).json({ message: 'Mens record not found' });
+        }
+
+        res.json({ message: 'Mens record deleted successfully', deletedMen });
+    } catch (error) {
+        res.status(500).json({ message: 'Error deleting mens record', error });
+    }
+});
 module.exports = router;
