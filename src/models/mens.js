@@ -52,6 +52,12 @@ const menSchema = new mongoose.Schema({
         required: true
 
     },
+
+    jobdetails: {
+        type: String,
+        required: true
+
+    },
     jobname: {
         type: String,
         required: true,
@@ -85,14 +91,28 @@ const menSchema = new mongoose.Schema({
 
     },
 
-    jobtypeH: {
+    jobprofileH: {
         type: String,
         required: true,
 
 
     },
 
-    jobtype: {
+    jobprofile: {
+        type: String,
+        required: true,
+
+
+    },
+
+    jobdegreeH: {
+        type: String,
+        required: true,
+
+
+    },
+
+    jobdegree: {
         type: String,
         required: true,
 
@@ -138,7 +158,7 @@ const menSchema = new mongoose.Schema({
 
 
     },
-    rolesandadresH: {
+    rolesandresH: {
         type: String,
         required: true,
 
