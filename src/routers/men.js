@@ -31,10 +31,10 @@ router.get('/mens', async (req, res) => {
 })
 
 //individual
-router.get('/mens/:jobtitle', async (req, res) => {
+router.get('/mens/:id', async (req, res) => {
     try {
 
-        const getMens = await MenRanking.findById(req.params.jobtitle)
+        const getMens = await MenRanking.findById(req.params.id)
         res.send(getMens);
     }
     catch (err) {
