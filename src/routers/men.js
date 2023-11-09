@@ -2,7 +2,7 @@ const express = require("express");
 const router = new express.Router();
 const MenRanking = require('../models/mens');
 
-
+const querystring = require('querystring');
 router.get('/', async (req, res) => {
     res.send('siddiqkolimi..');
 })
@@ -22,7 +22,7 @@ router.post('/jobs', async (req, res) => {
 
 router.get('/jobs', async (req, res) => {
     try {
-        const getMens = await MenRanking.find({})
+        const getMens = await MenRanking.find().sort({ date: -1 })
         res.send(getMens);
     }
     catch (err) {
@@ -32,7 +32,7 @@ router.get('/jobs', async (req, res) => {
 
 router.get('/internships', async (req, res) => {
     try {
-        const getMens = await MenRanking.find({ type: 'internships' })
+        const getMens = await MenRanking.find({ type: 'internships' }).sort({ date: -1 })
         res.send(getMens);
     }
     catch (err) {
@@ -43,7 +43,7 @@ router.get('/internships', async (req, res) => {
 
 router.get('/walk-in-drives', async (req, res) => {
     try {
-        const getMens = await MenRanking.find({ type: 'walkindrives' })
+        const getMens = await MenRanking.find({ type: 'walkindrives' }).sort({ date: -1 })
         res.send(getMens);
     }
     catch (err) {
@@ -53,7 +53,7 @@ router.get('/walk-in-drives', async (req, res) => {
 
 router.get('/govt-jobs', async (req, res) => {
     try {
-        const getMens = await MenRanking.find({ type: 'govtjobs' })
+        const getMens = await MenRanking.find({ type: 'govtjobs' }).sort({ date: -1 })
         res.send(getMens);
     }
     catch (err) {
@@ -64,10 +64,14 @@ router.get('/govt-jobs', async (req, res) => {
 
 
 //individual
-router.get('/jobs/:id', async (req, res) => {
+router.get('/jobs/:name', async (req, res) => {
     try {
 
-        const getMens = await MenRanking.findById(req.params.id)
+        const getMensname = req.params.name.trim();
+
+        const getMens = await MenRanking.findOne({
+            jobname: { $regex: new RegExp(getMensname, 'i') },
+        });
         res.send(getMens);
     }
     catch (err) {
@@ -75,10 +79,14 @@ router.get('/jobs/:id', async (req, res) => {
     }
 })
 
-router.get('/internships/:id', async (req, res) => {
+router.get('/internships/:name', async (req, res) => {
     try {
 
-        const getMens = await MenRanking.findById(req.params.id)
+        const getMensname = req.params.name.trim()
+
+        const getMens = await MenRanking.findOne({
+            jobname: { $regex: new RegExp(getMensname, 'i') },
+        });
         res.send(getMens);
     }
     catch (err) {
@@ -86,10 +94,14 @@ router.get('/internships/:id', async (req, res) => {
     }
 })
 
-router.get('/walk-in-drives/:id', async (req, res) => {
+router.get('/walk-in-drives/:name', async (req, res) => {
     try {
 
-        const getMens = await MenRanking.findById(req.params.id)
+        const getMensname = req.params.name.trim()
+
+        const getMens = await MenRanking.findOne({
+            jobname: { $regex: new RegExp(getMensname, 'i') },
+        });
         res.send(getMens);
     }
     catch (err) {
@@ -97,10 +109,14 @@ router.get('/walk-in-drives/:id', async (req, res) => {
     }
 })
 
-router.get('/govt-jobs/:id', async (req, res) => {
+router.get('/govt-jobs/:name', async (req, res) => {
     try {
 
-        const getMens = await MenRanking.findById(req.params.id)
+        const getMensname = req.params.name.trim()
+
+        const getMens = await MenRanking.findOne({
+            jobname: { $regex: new RegExp(getMensname, 'i') },
+        });
         res.send(getMens);
     }
     catch (err) {
