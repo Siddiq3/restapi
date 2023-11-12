@@ -1,11 +1,11 @@
 const express = require('express');
 const cors = require('cors');
-const MenRanking = require('../src/models/mens');
+const MenRanking = require('./models/jobsmodel');
 require("../src/db/conn");
 
 
 
-const router = require('./routers/men');
+const router = require('./routers/jobrouter');
 const app = express();
 //dynamic port
 const port = process.env.PORT || 3001;
