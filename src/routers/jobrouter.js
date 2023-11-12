@@ -37,45 +37,54 @@ router.get('/form', (req, res) => {
     res.send(`
     <html>
     <head>
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-            }
+    <style>
+    body {
+        font-family: Arial, sans-serif;
+    }
 
-            form {
-                width: 50%;
-                margin: 0 auto;
-            }
+    form {
+        width: 50%;
+        margin: 0 auto;
+    }
 
-            label {
-                display: block;
-                margin-top: 10px;
-            }
+    label {
+        display: block;
+        margin-top: 10px;
+    }
 
-            input {
-                width: 100%;
-                padding: 8px;
-                margin-top: 5px;
-                margin-bottom: 10px;
-                box-sizing: border-box;
-            }
+    input {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+        margin-bottom: 10px;
+        box-sizing: border-box;
+    }
 
-            button {
-                background-color: #4CAF50;
-                color: white;
-                padding: 10px 15px;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-            }
+    button {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
 
-            button:hover {
-                background-color: #45a049;
-            }
-            .form-row {
-                margin-bottom: 10px;
-            }
-        </style>
+    button:hover {
+        background-color: #45a049;
+    }
+
+    .form-row {
+        margin-bottom: 10px;
+    }
+
+    /* Responsive Design */
+    @media only screen and (max-width: 600px) {
+        form {
+            width: 80%;
+        }
+    }
+</style>
+
     </head>
     <body>
         <form action="/jobs" method="post" enctype="multipart/form-data">
