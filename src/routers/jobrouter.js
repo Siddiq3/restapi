@@ -152,16 +152,19 @@ router.get('/form', (req, res) => {
 
          
             <div id="educandskill-container" class="form-row">
-            <label for="educandskill">Educational and Skill Requirements:</label>
+            <label for="educandskill">Educational and Skill:</label>
             <input type="text" name="educandskill[]" required>
             <button type="button" onclick="addRow()">Add More</button>
         </div>
 
-            <label for="user">ROLESH:</label>
+            <label for="user">ROLESHeading:</label>
             <input type="text" id="rolesandresH" name="rolesandresH" required><br>
 
-            <label for="user">ROLES:</label>
-            <input type="text" id="rolesandres" name="rolesandres" required><br>
+            <div id="roles" class="form-row1">
+            <label for="role">Role and Responsibility:</label>
+            <input type="text" name="rolesandres[]" required>
+            <button type="button" onclick="addRow1()">Add More</button>
+        </div>
 
             <label for="user">apply link:</label>
             <input type="text" id="apply" name="apply" required><br>
@@ -169,42 +172,69 @@ router.get('/form', (req, res) => {
             <button type="submit">Submit</button>
         </form>
         <script>
-        function addRow() {
-            var container = document.getElementById('educandskill-container');
-            
-            var newRow = document.createElement('div');
-            newRow.className = 'form-row';
-    
-            var label = document.createElement('label');
-            label.textContent = 'Educational and Skill Requirements:';
-            newRow.appendChild(label);
-    
-            var input = document.createElement('input');
-            input.type = 'text';
-            input.name = 'educandskill[]';
-            input.required = true;
-            newRow.appendChild(input);
-    
-            var removeButton = document.createElement('button');
-            removeButton.type = 'button';
-            removeButton.textContent = 'Remove';
-            removeButton.onclick = function() {
-                removeRow(newRow);
-            };
-            newRow.appendChild(removeButton);
-    
-            container.parentNode.insertBefore(newRow, container);
-        }
+    function addRow() {
+        var container = document.getElementById('educandskill-container');
 
-    function removeRow(button) {
-        var formRow = button.parentNode;
-        var form = formRow.parentNode;
-        form.removeChild(formRow);
+        var newRow = document.createElement('div');
+        newRow.className = 'form-row';
+
+        var label = document.createElement('label');
+        label.textContent = 'Educational and Skill:';
+        newRow.appendChild(label);
+
+        var input = document.createElement('input');
+        input.type = 'text';
+        input.name = 'educandskill[]';
+        input.required = true;
+        newRow.appendChild(input);
+
+        var removeButton = document.createElement('button');
+        removeButton.type = 'button';
+        removeButton.textContent = 'Remove';
+        removeButton.onclick = function () {
+            removeRow(newRow);
+        };
+        newRow.appendChild(removeButton);
+
+        container.parentNode.insertBefore(newRow, container);
     }
+
     function removeRow(row) {
         row.parentNode.removeChild(row);
     }
+
+    function addRow1() {
+        var container = document.getElementById('roles');
+
+        var newRow = document.createElement('div');
+        newRow.className = 'form-row1';
+
+        var label = document.createElement('label');
+        label.textContent = 'Role and Responsibility:';
+        newRow.appendChild(label);
+
+        var input = document.createElement('input');
+        input.type = 'text';
+        input.name = 'rolesandres[]';
+        input.required = true;
+        newRow.appendChild(input);
+
+        var removeButton = document.createElement('button');
+        removeButton.type = 'button';
+        removeButton.textContent = 'Remove';
+        removeButton.onclick = function () {
+            removeRow1(newRow);
+        };
+        newRow.appendChild(removeButton);
+
+        container.parentNode.insertBefore(newRow, container);
+    }
+
+    function removeRow1(row) {
+        row.parentNode.removeChild(row);
+    }
 </script>
+
   </body>
         </html>
     `);
