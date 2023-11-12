@@ -82,6 +82,14 @@ router.get('/form', (req, res) => {
         form {
             width: 80%;
         }
+
+        input {
+            padding: 6px;
+        }
+
+        button {
+            padding: 8px 12px;
+        }
     }
 </style>
 
