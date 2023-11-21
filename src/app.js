@@ -8,7 +8,7 @@ require("../src/db/conn");
 const router = require('./routers/jobrouter');
 const app = express();
 //dynamic port
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3002;
 
 
 app.use(express.json());
