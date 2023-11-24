@@ -88,7 +88,23 @@ router.get('/quiz/:class1', async (req, res) => {
 });
 
 
-router.get('/quiz/:class1/:chapter', async (req, res) => {
+
+router.get('/quiz/:class1/:subject', async (req, res) => {
+    const { class1: requestedClass, subject } = req.params;
+
+    try {
+        // Filter quizzes based on the requested class and chapter
+        const quizzes = await Quiz.find({ class1: requestedClass, subject: subject });
+        const formattedQuizzes = quizzes.map((quiz) => ({
+            // subject: quiz.subject,
+            chapter: quiz.chapter,
+        }));
+        res.json({ response_code: 0, results: formattedQuizzes });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+router.get('/quiz/:class1/:subject/:chapter', async (req, res) => {
     const { class1: requestedClass, chapter } = req.params;
 
     try {
