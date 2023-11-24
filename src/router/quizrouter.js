@@ -121,13 +121,26 @@ router.get('/quiz/:class1/:subject/:chapter', async (req, res) => {
     }
 });
 
-router.post('/withdrawal', async (req, res) => {
+router.post('/app/withdrawal', async (req, res) => {
     try {
         const formData = req.body;
         const withdrawal = new Withdrawal(formData);
         await withdrawal.save();
 
         res.status(201).json({ message: 'Withdrawal request submitted successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+app.get('/app/withdrawals', async (req, res) => {
+    try {
+        // Retrieve all withdrawal documents from the MongoDB collection
+        const withdrawals = await Withdrawal.find();
+
+        // Respond with the array of withdrawal documents
+        res.status(200).json(withdrawals);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal Server Error' });
