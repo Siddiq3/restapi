@@ -121,7 +121,7 @@ router.get('/quiz/:class1/:subject/:chapter', async (req, res) => {
     }
 });
 
-router.post('/app/withdrawal', async (req, res) => {
+router.post('/withdrawal', async (req, res) => {
     try {
         const formData = req.body;
         const withdrawal = new Withdrawal(formData);
@@ -134,7 +134,7 @@ router.post('/app/withdrawal', async (req, res) => {
     }
 });
 
-app.get('/app/withdrawals', async (req, res) => {
+router.get('/withdrawals', async (req, res) => {
     try {
         // Retrieve all withdrawal documents from the MongoDB collection
         const withdrawals = await Withdrawal.find();
