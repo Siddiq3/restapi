@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
+const encodedPassword = encodeURIComponent('Siddiq@03');
 
-mongoose.connect('mongodb+srv://siddiq:Siddiq03@cluster0.oadrcbo.mongodb.net/?retryWrites=true&w=majority').then(
-    () => console.log('DB connect ')
-).catch(err => console.log(err))
+mongoose.connect(`mongodb+srv://siddiqkolimi:${encodedPassword}@quizapi.qrbkogz.mongodb.net/quiz_db`)
+    .then(() => console.log('DB connect'))
+    .catch(err => console.log(err));
