@@ -2,7 +2,7 @@ const express = require("express");
 const router = new express.Router();
 
 const { Quiz } = require('../db/model/quizmodels');
-
+const Withdrawal = require('../db/model/withdraw');
 
 
 
@@ -118,6 +118,19 @@ router.get('/quiz/:class1/:subject/:chapter', async (req, res) => {
         res.json({ response_code: 0, results: formattedQuizzes });
     } catch (error) {
         res.status(500).json({ message: error.message });
+    }
+});
+
+router.post('/withdrawal', async (req, res) => {
+    try {
+        const formData = req.body;
+        const withdrawal = new Withdrawal(formData);
+        await withdrawal.save();
+
+        res.status(201).json({ message: 'Withdrawal request submitted successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
