@@ -14,38 +14,60 @@ router.get('/', async (req, res) => {
 
 
 // Create a quiz
-router.post('/quiz', async (req, res) => {
-    const {
-        class1,
-        subject,
-        chapter,
-        question,
-        correct_answer,
-        incorrect_answers,
-    } = req.body;
-
-    // Create a new Quiz instance
-    const quiz = new Quiz({
-        class1,
-        subject,
-        chapter,
-        question,
-        correct_answer,
-        incorrect_answers,
-    });
-
+router.post('/quizzes', async (req, res) => {
     try {
-        // Save the new quiz to the database
-        const newQuiz = await quiz.save();
+        console.log('Received POST request for /quizzes');
 
-        // Respond with the created quiz
-        res.status(201).json(newQuiz);
+        const quizDataArray = req.body;
+
+        // Validate that the request body is an array
+        if (!Array.isArray(quizDataArray)) {
+            console.log('Invalid request format. Expecting an array.');
+            return res.status(400).json({ message: 'Invalid request format. Expecting an array.' });
+        }
+
+        // Create an array to store the created quizzes
+        const createdQuizzes = [];
+
+        // Iterate through each quiz data in the array
+        for (const quizData of quizDataArray) {
+            console.log('Processing quiz data:', quizData);
+
+            const {
+                class1,
+                subject,
+                chapter,
+                question,
+                correct_answer,
+                incorrect_answers,
+            } = quizData;
+
+            // Create a new Quiz instance
+            const quiz = new Quiz({
+                class1,
+                subject,
+                chapter,
+                question,
+                correct_answer,
+                incorrect_answers,
+            });
+
+            // Save the new quiz to the database
+            const newQuiz = await quiz.save();
+            console.log('Quiz saved:', newQuiz);
+
+            createdQuizzes.push(newQuiz);
+        }
+
+        // Respond with the created quizzes
+        console.log('Sending response:', createdQuizzes);
+        res.status(201).json(createdQuizzes);
     } catch (error) {
         // Handle errors, such as validation errors or database errors
+        console.error('Error:', error);
         res.status(400).json({ message: error.message });
     }
 });
-
 
 router.get('/quiz', async (req, res) => {
     try {
@@ -121,7 +143,7 @@ router.get('/quiz/:class1/:subject/:chapter', async (req, res) => {
     }
 });
 
-router.post('/withdrawal', async (req, res) => {
+router.post('/sk0301withdrawal', async (req, res) => {
     try {
         const formData = req.body;
         const withdrawal = new Withdrawal(formData);
