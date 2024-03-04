@@ -10,6 +10,7 @@ router.use(bodyParser.json());
 router.get('/', async (req, res) => {
     res.send('siddiqkolimi..');
 })
+router.use(express.static('public'));
 
 
 // Create a quiz
