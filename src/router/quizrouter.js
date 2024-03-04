@@ -1,13 +1,12 @@
 const express = require("express");
 const router = new express.Router();
-
+const bodyParser = require('body-parser');
 const { Quiz } = require('../db/model/quizmodels');
 const Withdrawal = require('../db/model/withdraw');
 
 const { Quizdata } = require('../db/model/quizdatamodel');
 
-
-
+router.use(bodyParser.json());
 router.get('/', async (req, res) => {
     res.send('siddiqkolimi..');
 })
@@ -261,6 +260,142 @@ router.post('/quizdata', async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 });
+router.get('/quizform', (req, res) => {
+    const htmlContent = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Quiz Form</title>
+        <style>
+            /* Style for the form */
+            #quizForm {
+                max-width: 500px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #f9f9f9;
+                border-radius: 5px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+
+            /* Style for form labels */
+            label {
+                display: block;
+                margin-bottom: 10px;
+            }
+
+            /* Style for input fields */
+            select, input[type="text"],
+            textarea {
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 15px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                box-sizing: border-box;
+            }
+
+            /* Style for submit button */
+            button[type="submit"] {
+                background-color: #4CAF50;
+                color: white;
+                padding: 12px 20px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+
+            /* Hover effect for submit button */
+            button[type="submit"]:hover {
+                background-color: #45a049;
+            }
+
+            /* Style for error message */
+            .error-message {
+                color: red;
+                margin-top: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <h2>Quiz Form</h2>
+        <form id="quizForm" action="/quizdata" method="post">
+            <label for="boardName">Board Name:</label>
+            <select id="boardName" name="boardName" required>
+                <option value="">Select Board Name</option>
+                <option value="Andrha Pradesh">Andrha Pradesh</option>
+                <option value="Karnataka">Karnataka</option>
+                <!-- Add more options as needed -->
+            </select><br><br>
+
+            <label for="className">Class Name:</label>
+            <select id="className" name="className" required>
+                <option value="">Select Class Name</option>
+                <option value="10thClass">10thClass</option>
+                <option value="9thClass">9thClass</option>
+                <option value= "8thClass">8thClass</option>
+                <option value="7thClass">7thClass</option>
+                <option value="6thClass">6thClass</option>
+                <!-- Add more options as needed -->
+            </select><br><br>
+
+            <label for="subject">Subject:</label>
+            <input type="text" id="subject" name="subject" required><br><br>
+
+            <label for="chapter">Chapter:</label>
+            <input type="text" id="chapter" name="chapter" required><br><br>
+
+            <label for="question">Question:</label>
+            <textarea id="question" name="question" rows="4" cols="50" required></textarea><br><br>
+
+            <label for="correctAnswer">Correct Answer:</label>
+            <input type="text" id="correctAnswer" name="correct_answer" required><br><br>
+
+            <label for="incorrectAnswers">Incorrect Answers:</label>
+            <textarea id="incorrectAnswers" name="incorrect_answers" rows="4" cols="50" required></textarea><br><br>
+
+            <button type="submit">Submit</button>
+        </form>
+
+        <script>
+            // JavaScript code for handling form submission and clearing input fields
+            document.getElementById("quizForm").addEventListener("submit", async function(event) {
+                event.preventDefault(); // Prevent the default form submission
+
+                const form = event.target;
+                const formData = new FormData(form);
+
+                try {
+                    const response = await fetch('/quizdata', {
+                        method: 'POST',
+                        body: JSON.stringify([Object.fromEntries(formData.entries())]), // Wrap the form data in an array
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log('Quiz data stored:', data);
+                        // Clear input fields after successful submission
+                        form.reset();
+                    } else {
+                        console.error('Failed to store quiz data:', response.statusText);
+                        // Handle error
+                    }
+                } catch (error) {
+                    console.error('Error storing quiz data:', error.message);
+                    // Handle error
+                }
+            });
+        </script>
+    </body>
+    </html>
+    `;
+    res.send(htmlContent);
+});
+
 
 router.get('/quizdata', async (req, res) => {
     try {
@@ -316,12 +451,12 @@ router.get('/quizdata/:boardName/:className/:subject', async (req, res) => {
     }
 });
 
-router.delete('/quizdata/:boardName/:className/:subject/:chapter/:question', async (req, res) => {
+router.delete('/quizdata/:question', async (req, res) => {
     const { boardName, className, subject, chapter, question } = req.params;
     console.log('Deleting quiz with parameters:', { boardName, className, subject, chapter, question });
 
     try {
-        const deletedQuiz = await Quizdata.findOneAndDelete({ boardName, className, subject, chapter, question });
+        const deletedQuiz = await Quizdata.findOneAndDelete({ question });
 
         if (!deletedQuiz) {
             return res.status(404).json({ message: 'Quiz not found' });
@@ -333,6 +468,8 @@ router.delete('/quizdata/:boardName/:className/:subject/:chapter/:question', asy
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
+
 
 
 module.exports = router;
