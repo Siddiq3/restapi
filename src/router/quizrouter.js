@@ -561,7 +561,7 @@ router.get('/delete_quizdata', (req, res) => {
 });
 
 router.get('/quizdata/:boardName/:className/:subject/:chapter', async (req, res) => {
-    const { boardName, className, subject } = req.params;
+    const { boardName, className, subject, chapter } = req.params;
 
     try {
         const quizdata = await Quizdata.find({ boardName, className, subject });
