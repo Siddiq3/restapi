@@ -564,7 +564,7 @@ router.get('/quizdata/:boardName/:className/:subject/:chapter', async (req, res)
     const { boardName, className, subject, chapter } = req.params;
 
     try {
-        const quizdata = await Quizdata.find({ boardName, className, subject });
+        const quizdata = await Quizdata.find({ boardName, className, subject, chapter });
         const formattedQuizzes = quizdata.map((quiz) => ({
 
             question: quiz.question,
