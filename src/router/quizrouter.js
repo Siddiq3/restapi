@@ -560,6 +560,23 @@ router.get('/delete_quizdata', (req, res) => {
     res.send(htmlContent);
 });
 
+router.get('/quizdata/:boardName/:className/:subject/:chapter', async (req, res) => {
+    const { boardName, className, subject } = req.params;
+
+    try {
+        const quizdata = await Quizdata.find({ boardName, className, subject });
+        const formattedQuizzes = quizdata.map((quiz) => ({
+
+            question: quiz.question,
+            correct_answer: quiz.correct_answer,
+            incorrect_answers: quiz.incorrect_answers,
+        }));
+        res.json({ response_code: 0, results: formattedQuizzes });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 // Route to handle DELETE request for deleting quiz
 router.delete('/quizdata/:question', async (req, res) => {
     const { boardName, className, subject, chapter, question } = req.params;
