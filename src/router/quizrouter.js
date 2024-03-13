@@ -325,7 +325,7 @@ router.get('/quizform', (req, res) => {
             <label for="boardName">Board Name:</label>
             <select id="boardName" name="boardName" required>
                 <option value="">Select Board Name</option>
-                <option value="Andrha Pradesh">Andrha Pradesh</option>
+                <option value="Andhra Pradesh">Andhra Pradesh</option>
                 <option value="Karnataka">Karnataka</option>
                 <!-- Add more options as needed -->
             </select><br><br>
