@@ -969,6 +969,37 @@ router.get('/admissiondetails', async (req, res) => {
     }
 });
 
+router.get('/admissiondetailsjson', async (req, res) => {
+    try {
+        // Fetch all admission records from the database
+        const admissions = await Admission.find();
+
+        // Convert admission records to JSON format
+        const admissionData = admissions.map(admission => {
+            return {
+                admissionNumber: admission.admissionNumber,
+                firstName: admission.firstName,
+                lastName: admission.lastName,
+                dob: admission.dob,
+                parentName: admission.parentName,
+                parentPhoneNumber: admission.parentPhoneNumber,
+                course: admission.course,
+                totalFee: admission.totalFee,
+                paidFee: admission.paidFee,
+                paidDate: admission.paidDate,
+                remainingFee: admission.remainingFee,
+                remainingFeeDueDate: admission.remainingFeeDueDate,
+                address: admission.address
+            };
+        });
+
+        // Send the admission data in JSON format as response
+        res.json(admissionData);
+    } catch (error) {
+        console.error('Error fetching admission details:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
 
 
 // Route to render the delete admission data page
