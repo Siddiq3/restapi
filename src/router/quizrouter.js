@@ -5,6 +5,11 @@ const Withdrawal = require('../db/model/withdraw');
 const { User } = require('../db/model/register');
 const { Quizdata } = require('../db/model/quizdatamodel');
 const { Admission } = require('../db/model/admission');
+const { Attendance } = require('../db/model/attendence');
+
+const { Exam } = require('../db/model/exam');
+
+
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
@@ -1277,77 +1282,387 @@ router.get('/searchstudent', async (req, res) => {
 router.get('/RankersAcademy', (req, res) => {
     const htmlContent = `
     <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Main Page</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Main Page</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f4;
+                margin: 0;
+                padding: 0;
+            }
 
-        .container {
-            max-width: 600px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
+            .container {
+                max-width: 600px;
+                margin: 20px auto;
+                padding: 20px;
+                background-color: #fff;
+                border-radius: 5px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
 
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #333;
-        }
+            h2 {
+                text-align: center;
+                margin-bottom: 20px;
+                color: #333;
+            }
 
-        .button-container {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-        }
+            .button-container {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
 
-        .button {
-            padding: 12px 24px;
-            background-color: #3711F5;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            text-align: center;
-            text-decoration: none;
-            transition: background-color 0.3s;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+            .button {
+                padding: 12px 24px;
+                background-color: #3711F5;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 16px;
+                text-align: center;
+                text-decoration: none;
+                transition: background-color 0.3s;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
 
-        .button:hover {
-            background-color: #45a049;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h2>RANKERS ACADEMY, KUPPAM</h2>
-        <div class="button-container">
-            <a class="button" href="/admissionform">New Admission Form</a>
-            <a class="button" href="/admissiondetails">Admission Details</a>
-            <a class="button" href="/deleteadmission">Delete Student Data</a>
-            <a class="button" href="/searchstudent">Search Student Details</a>
+            .button:hover {
+                background-color: #45a049;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>RANKERS ACADEMY, KUPPAM</h2>
+            <div class="button-container">
+                <a class="button" href="/admissionform">New Admission Form</a>
+                <a class="button" href="/admissiondetails">Admission Details</a>
+                <a class="button" href="/deleteadmission">Delete Student Data</a>
+                <a class="button" href="/searchstudent">Search Student Details</a>
+                <a class="button" href="/attendance">Student Attendance</a>
+                <a class="button" href="/exam">Exam Results</a>
+            </div>
         </div>
-    </div>
-</body>
-</html>
-
+    </body>
+    </html>
     `;
     res.send(htmlContent);
 });
+
+
+
+router.get('/attendance', (req, res) => {
+    const formHtml = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Record Attendance</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f4;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+            }
+    
+            .container {
+                background-color: #fff;
+                border-radius: 8px;
+                padding: 20px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                width: 400px;
+            }
+    
+            h1 {
+                text-align: center;
+                margin-bottom: 20px;
+            }
+    
+            label {
+                font-weight: bold;
+            }
+    
+            input[type="text"],
+            input[type="date"],
+            select {
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 15px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                box-sizing: border-box;
+            }
+    
+            select {
+                appearance: none;
+            }
+    
+            button[type="submit"] {
+                background-color: #007bff;
+                color: #fff;
+                border: none;
+                border-radius: 5px;
+                padding: 10px 20px;
+                cursor: pointer;
+                transition: background-color 0.3s;
+            }
+    
+            button[type="submit"]:hover {
+                background-color: #0056b3;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Record Attendance</h1>
+            <form id="attendanceForm" action="/attendance" method="POST">
+                <label for="admissionNumber">Admission Number:</label>
+                <input type="text" id="admissionNumber" name="admissionNumber" required><br>
+                <label for="date">Date:</label>
+                <input type="date" id="date" name="date" required><br>
+                <label for="status">Status:</label>
+                <select id="status" name="status" required>
+                    <option value="present">Present</option>
+                    <option value="absent">Absent</option>
+                </select><br>
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+    </body>
+    </html>
+    
+    `;
+    res.send(formHtml);
+});
+
+// Route to record attendance from form submission
+router.post('/attendance', async (req, res) => {
+    try {
+        const { admissionNumber, date, status } = req.body;
+
+        // Check if admission number exists
+        const admission = await Admission.findOne({ admissionNumber });
+        if (!admission) {
+            return res.status(404).json({ message: 'Admission number not found' });
+        }
+
+        // Create new attendance record
+        const attendance = new Attendance({
+            admissionNumber,
+            date,
+            status
+        });
+
+        // Save attendance record
+        await attendance.save();
+        res.status(201).json({ message: 'Attendance recorded successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// Route to get attendance for a specific admission number
+router.get('/attendance/:admissionNumber', async (req, res) => {
+    try {
+        const { admissionNumber } = req.params;
+
+        // Find attendance records for the specified admission number
+        const attendance = await Attendance.find({ admissionNumber });
+
+        res.status(200).json({ attendance });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+
+
+
+// Route to serve HTML form for creating exams for students
+router.get('/exam', (req, res) => {
+    const formHtml = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Create Exam for Student</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f5f5f5;
+                margin: 0;
+                padding: 0;
+            }
+            
+            .container {
+                max-width: 600px;
+                margin: 20px auto;
+                padding: 20px;
+                background-color: #fff;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            
+            h1 {
+                text-align: center;
+                margin-bottom: 20px;
+                color: #333;
+            }
+            
+            form {
+                margin-bottom: 20px;
+            }
+            
+            label {
+                display: block;
+                margin-bottom: 5px;
+                color: #666;
+            }
+            
+            input[type="text"],
+            input[type="number"],
+            input[type="date"] {
+                width: calc(100% - 10px);
+                padding: 8px;
+                margin-bottom: 10px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                box-sizing: border-box;
+            }
+            
+            #subjectsContainer {
+                margin-bottom: 20px;
+            }
+            
+            #subjectsContainer label {
+                display: inline-block;
+                width: 100px;
+                margin-right: 10px;
+            }
+            
+            #subjectsContainer input {
+                width: calc(50% - 10px);
+            }
+            
+            #addSubjectButton {
+                background-color: #007bff;
+                color: #fff;
+                border: none;
+                padding: 10px 20px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 16px;
+                margin-bottom: 20px;
+                cursor: pointer;
+                border-radius: 4px;
+            }
+            
+            button[type="submit"] {
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 16px;
+                cursor: pointer;
+                border-radius: 4px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Exam Marks For Students</h1>
+            <form id="examForm" action="/exams" method="POST">
+                <label for="studentAdmissionNumber">Student Admission Number:</label>
+                <input type="text" id="studentAdmissionNumber" name="studentAdmissionNumber" required><br><br>
+                <label for="examType">Exam Type:</label>
+                <input type="text" id="examType" name="examType" required><br><br>
+                <label for="date">Date:</label>
+                <input type="date" id="date" name="date" required><br><br>
+                <div id="subjectsContainer">
+                    <label for="subject1">Subject 1:</label>
+                    <input type="text" id="subject1" name="subjects[0][name]" required>
+                    <label for="marks1">Marks:</label>
+                    <input type="number" id="marks1" name="subjects[0][marks]" required><br><br>
+                </div>
+                <button type="button" id="addSubjectButton">Add Subject</button><br><br>
+                <label for="totalMarks">Total Marks:</label>
+                <input type="number" id="totalMarks" name="totalMarks" required><br><br>
+                <label for="rank">Total Marks:</label>
+                <input type="number" id="rank" name="rank" required><br><br>
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+    
+        <script>
+            // JavaScript function to add subject fields dynamically
+            let subjectCounter = 1;
+            document.getElementById('addSubjectButton').addEventListener('click', () => {
+                subjectCounter++;
+                const subjectsContainer = document.getElementById('subjectsContainer');
+                const subjectDiv = document.createElement('div');
+                subjectDiv.innerHTML = 
+                    '<label for="subject' + subjectCounter + '">Subject ' + subjectCounter + ':</label>' +
+                    '<input type="text" id="subject' + subjectCounter + '" name="subjects[' + (subjectCounter - 1) + '][name]" required>' +
+                    '<label for="marks' + subjectCounter + '">Marks:</label>' +
+                    '<input type="number" id="marks' + subjectCounter + '" name="subjects[' + (subjectCounter - 1) + '][marks]" required><br><br>';
+                subjectsContainer.appendChild(subjectDiv);
+            });
+        </script>
+    </body>
+    </html>
+    
+    `;
+    res.send(formHtml);
+});
+
+// Route to handle submission of exam form
+router.post('/exams', async (req, res) => {
+    try {
+        const { studentAdmissionNumber, examType, date, subjects, totalMarks, rank } = req.body;
+
+        // Find the admission record associated with the provided admission number
+        const admission = await Admission.findOne({ admissionNumber: studentAdmissionNumber });
+
+        if (!admission) {
+            return res.status(400).json({ message: 'Admission not found' });
+        }
+
+        // Create new exam record
+        const exam = new Exam({ admission: admission._id, examType, date, subjects, totalMarks, rank });
+
+        // Save exam record to the database
+        await exam.save();
+
+        // Send response
+        res.status(201).json({ message: 'Exam stored successfully', exam });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+
+
+
 
 
 module.exports = router;
