@@ -1719,17 +1719,14 @@ router.post('/sendOTP', async (req, res) => {
         // Generate OTP
         const generatedOTP = otpGenerator.generate(6, { upperCase: false, specialChars: false });
 
-        // Save OTP to the database
-        await OTP.create({ parentPhoneNumber: admissionDoc.parentPhoneNumber, otp: generatedOTP });
-
-        // Send OTP to parent phone number (using Twilio as an example)
-        // Use environment variables for Twilio credentials
+        // Send OTP to parent phone number (using Twilio Verify API)
         const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-        await twilioClient.messages.create({
-            body: `Your OTP is: ${generatedOTP}`,
-            to: admissionDoc.parentPhoneNumber,
-            from: process.env.TWILIO_PHONE_NUMBER,
-        });
+        const verification = await twilioClient.verify.services(process.env.TWILIO_VERIFY_SERVICE_SID)
+            .verifications
+            .create({ to: admissionDoc.parentPhoneNumber, channel: 'sms' });
+
+        // Log the verification status
+        console.log(verification.status);
 
         return res.json({ message: 'OTP sent successfully' });
     } catch (error) {
