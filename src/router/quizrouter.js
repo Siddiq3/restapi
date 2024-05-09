@@ -1730,13 +1730,14 @@ router.post('/sendOTP', async (req, res) => {
         await OTP.create({ parentPhoneNumber: admissionDoc.parentPhoneNumber, otp: generatedOTP });
 
         // Send OTP to parent phone number (using Twilio as an example)
-        // Replace the placeholders with your Twilio credentials
-        const twilioClient = twilio('AC31a41dd30a5f14d9b62af30ffff95866', '1f4346040ac0d44b845d0a1b48d1df76');
+        // Use environment variables for Twilio credentials
+        const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
         await twilioClient.messages.create({
             body: `Your OTP is: ${generatedOTP}`,
             to: admissionDoc.parentPhoneNumber,
-            from: '9705116606',
+            from: process.env.TWILIO_PHONE_NUMBER,
         });
+
 
         return res.json({ message: 'OTP sent successfully' });
     } catch (error) {
