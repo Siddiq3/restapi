@@ -10,7 +10,7 @@ const { Attendance } = require('../db/model/attendence');
 const otpGenerator = require('otp-generator');
 const twilio = require('twilio');
 const { Exam } = require('../db/model/exam');
-
+const axios = require('axios');
 const otpSchema = new mongoose.Schema({
     parentPhoneNumber: String,
     otp: String,
@@ -1700,27 +1700,20 @@ router.post('/exams', async (req, res) => {
 
 
 
-// Send OTP endpoint
 router.post('/sendOTP', async (req, res) => {
     const { input } = req.body;
 
     try {
-        // Find the admission document in the database based on admission number or parent phone number
-        const admissionDoc = await Admission.findOne({
-            $or: [
-                { admissionNumber: input },
-                { parentPhoneNumber: input }
-            ]
-        });
+        // Fetch admission details from the admissiondetailsjson endpoint
+        const admissionDetailsResponse = await axios.get('https://api.way2employee.com/admissiondetailsjson');
+        const admissionDetails = admissionDetailsResponse.data;
+
+        // Find the admission document in the fetched data based on the admission number or parent phone number
+        const admissionDoc = admissionDetails.find(admission => admission.admissionNumber === input || admission.parentPhoneNumber === input);
 
         // Check if admission document exists
         if (!admissionDoc) {
             return res.status(400).json({ error: 'Admission not found' });
-        }
-
-        // Check if parent phone number is registered
-        if (admissionDoc.parentPhoneNumber !== input) {
-            return res.status(400).json({ error: 'Phone number not registered' });
         }
 
         // Generate OTP
@@ -1737,7 +1730,6 @@ router.post('/sendOTP', async (req, res) => {
             to: admissionDoc.parentPhoneNumber,
             from: process.env.TWILIO_PHONE_NUMBER,
         });
-
 
         return res.json({ message: 'OTP sent successfully' });
     } catch (error) {
