@@ -1,4 +1,5 @@
 const express = require("express");
+const mongoose = require('mongoose');
 const router = new express.Router();
 const bodyParser = require('body-parser');
 const Withdrawal = require('../db/model/withdraw');
@@ -6,9 +7,15 @@ const { User } = require('../db/model/register');
 const { Quizdata } = require('../db/model/quizdatamodel');
 const { Admission } = require('../db/model/admission');
 const { Attendance } = require('../db/model/attendence');
-
+const otpGenerator = require('otp-generator');
+const twilio = require('twilio');
 const { Exam } = require('../db/model/exam');
 
+const otpSchema = new mongoose.Schema({
+    parentPhoneNumber: String,
+    otp: String,
+});
+const OTP = mongoose.model('OTP', otpSchema);
 
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
@@ -1691,6 +1698,94 @@ router.post('/exams', async (req, res) => {
     }
 });
 
+
+
+// Send OTP endpoint
+router.post('/sendOTP', async (req, res) => {
+    const { input } = req.body;
+
+    try {
+        // Find the admission document in the database based on admission number or parent phone number
+        const admissionDoc = await Admission.findOne({
+            $or: [
+                { admissionNumber: input },
+                { parentPhoneNumber: input }
+            ]
+        });
+
+        // Check if admission document exists
+        if (!admissionDoc) {
+            return res.status(400).json({ error: 'Admission not found' });
+        }
+
+        // Check if parent phone number is registered
+        if (admissionDoc.parentPhoneNumber !== input) {
+            return res.status(400).json({ error: 'Phone number not registered' });
+        }
+
+        // Generate OTP
+        const generatedOTP = otpGenerator.generate(6, { upperCase: false, specialChars: false });
+
+        // Save OTP to the database
+        await OTP.create({ parentPhoneNumber: admissionDoc.parentPhoneNumber, otp: generatedOTP });
+
+        // Send OTP to parent phone number (using Twilio as an example)
+        // Replace the placeholders with your Twilio credentials
+        const twilioClient = twilio('AC31a41dd30a5f14d9b62af30ffff95866', '1f4346040ac0d44b845d0a1b48d1df76');
+        await twilioClient.messages.create({
+            body: `Your OTP is: ${generatedOTP}`,
+            to: admissionDoc.parentPhoneNumber,
+            from: '9705116606',
+        });
+
+        return res.json({ message: 'OTP sent successfully' });
+    } catch (error) {
+        console.error('Error sending OTP:', error.message);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+
+
+// Verify OTP endpoint
+router.post('/verifyOTP', async (req, res) => {
+    const { input, otp } = req.body;
+
+    // Check if input (admission number or parent phone number) and OTP are provided
+    if (!input || !otp) {
+        return res.status(400).json({ error: 'Admission number or phone number and OTP are required' });
+    }
+
+    try {
+        // Find the admission document in the database based on admission number or parent phone number
+        const admissionDoc = await Admission.findOne({
+            $or: [
+                { admissionNumber: input },
+                { parentPhoneNumber: input }
+            ]
+        });
+
+        // Check if admission document exists
+        if (!admissionDoc) {
+            return res.status(400).json({ error: 'Admission not found' });
+        }
+
+        // Find the OTP document in the database
+        const otpDoc = await OTP.findOne({ parentPhoneNumber: admissionDoc.parentPhoneNumber });
+
+        // Check if OTP document exists and if the provided OTP matches
+        if (otpDoc && otp === otpDoc.otp) {
+            // OTP verification successful
+            return res.json({ message: 'OTP verification successful' });
+        } else {
+            // OTP verification failed
+            return res.status(400).json({ error: 'Invalid OTP' });
+        }
+    } catch (error) {
+        console.error('Error verifying OTP:', error.message);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+});
 
 
 
