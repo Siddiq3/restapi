@@ -23,6 +23,16 @@ const bcrypt = require('bcrypt');
 const { Quiz } = require('../db/model/quizmodels');
 router.use(bodyParser.json());
 
+
+const formatDate = (date) => {
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+};
+
+
 router.get('/', async (req, res) => {
     res.send('siddiqkolimi..');
 })
@@ -614,48 +624,6 @@ router.delete('/quizdata/:question', async (req, res) => {
 
 
 
-router.post('/register', async (req, res) => {
-    try {
-        const { username, password } = req.body;
-        const existingUser = await User.findOne({ username });
-
-        if (existingUser) {
-            return res.status(400).json({ message: 'Username already exists' });
-        }
-
-        // Hash the password before storing it in the database
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = new User({ username, password: hashedPassword });
-        await newUser.save();
-
-        res.status(201).json({ message: 'User registered successfully' });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Internal Server Error' });
-    }
-});
-
-// Login endpoint
-router.post('/login', async (req, res) => {
-    try {
-        const { username, password } = req.body;
-        const user = await User.findOne({ username });
-
-        // If user does not exist or password does not match, send error response
-        if (!user || !(await bcrypt.compare(password, user.password))) {
-            return res.status(401).json({ message: 'Invalid username or password' });
-        }
-
-        // Generate JWT token
-        const token = jwt.sign({ userId: user._id, username: user.username }, 'your_secret_key');
-
-        res.status(200).json({ message: 'Login successful', token });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Internal Server Error' });
-    }
-});
-
 
 //admission 
 
@@ -676,7 +644,7 @@ router.get('/admissionform', (req, res) => {
                 margin: 0;
                 padding: 0;
             }
-    
+
             #admissionForm {
                 max-width: 500px;
                 margin: 20px auto;
@@ -685,17 +653,17 @@ router.get('/admissionform', (req, res) => {
                 border-radius: 5px;
                 box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             }
-    
+
             h2 {
                 text-align: center;
             }
-    
+
             label {
                 display: block;
                 margin-bottom: 10px;
                 font-weight: bold;
             }
-    
+
             input[type="text"],
             input[type="email"],
             select,
@@ -709,15 +677,15 @@ router.get('/admissionform', (req, res) => {
                 border-radius: 4px;
                 box-sizing: border-box;
             }
-    
+
             select {
                 height: 40px;
             }
-    
+
             textarea {
                 resize: vertical;
             }
-    
+
             button[type="submit"] {
                 background-color: #4CAF50;
                 color: white;
@@ -729,11 +697,11 @@ router.get('/admissionform', (req, res) => {
                 font-size: 16px;
                 transition: background-color 0.3s;
             }
-    
+
             button[type="submit"]:hover {
                 background-color: #45a049;
             }
-    
+
             /* Error Message */
             .error-message {
                 color: red;
@@ -757,12 +725,17 @@ router.get('/admissionform', (req, res) => {
                 const remainingFee = document.getElementById('remainingFee').value;
                 const paidDate = document.getElementById('paidDate').value;
                 const remainingFeeDueDate = document.getElementById('remainingFeeDueDate').value;
-    
+
                 // Perform validation
                 if (!admissionNumber || !firstName || !lastName || !parentName || !parentPhoneNumber || !course || !dob || !address || !totalFee || !paidFee || !remainingFee || !paidDate || !remainingFeeDueDate) {
                     alert('All fields are required');
                     return false;
                 }
+
+                // Set username and password fields
+                document.getElementById('username').value = parentPhoneNumber;
+                document.getElementById('password').value = dob;
+
                 return true;
             }
         </script>
@@ -772,21 +745,22 @@ router.get('/admissionform', (req, res) => {
         <form id="admissionForm" action="/submitadmission" method="post" onsubmit="return validateForm()">
             <label for="admissionNumber">Admission Number:</label>
             <input type="text" id="admissionNumber" name="admissionNumber" required>
-    
+
             <label for="firstName">First Name:</label>
             <input type="text" id="firstName" name="firstName" required>
-    
+
             <label for="lastName">Last Name:</label>
             <input type="text" id="lastName" name="lastName" required>
+            
             <label for="dob">Date of Birth:</label>
             <input type="date" id="dob" name="dob" required>
-    
+
             <label for="parentName">Parent Name:</label>
             <input type="text" id="parentName" name="parentName" required>
-    
+
             <label for="parentPhoneNumber">Parent Phone Number:</label>
             <input type="text" id="parentPhoneNumber" name="parentPhoneNumber" required>
-    
+
             <label for="course">Course:</label>
             <select id="course" name="course" required>
                 <option value="">Select Course</option>
@@ -794,35 +768,42 @@ router.get('/admissionform', (req, res) => {
                 <option value="Engineering">Engineering</option>
                 <!-- Add more options as needed -->
             </select>
-    
-          
-           
-    
+
             <label for="totalFee">Total Fee:</label>
             <input type="number" id="totalFee" name="totalFee" required>
-    
+
             <label for="paidFee">Paid Fee:</label>
             <input type="number" id="paidFee" name="paidFee" required>
-    
+
             <label for="remainingFee">Remaining Fee:</label>
             <input type="number" id="remainingFee" name="remainingFee" required>
-    
+
             <label for="paidDate">Paid Date:</label>
             <input type="date" id="paidDate" name="paidDate" required>
-    
+
             <label for="remainingFeeDueDate">Remaining Fee Due Date:</label>
             <input type="date" id="remainingFeeDueDate" name="remainingFeeDueDate" required>
+
             <label for="address">Address:</label>
             <textarea id="address" name="address" rows="4" cols="50" required></textarea>
+
+            <!-- Hidden fields for username and password -->
+            <input type="hidden" id="username" name="username">
+            <input type="hidden" id="password" name="password">
+
             <button type="submit">Submit</button>
         </form>
     </body>
     </html>
-    
     `;
     res.send(htmlContent);
 });
 
+// Route to handle form submission
+const convertToISODate = (dateString) => {
+    const [day, month, year] = dateString.split('/');
+    return new Date(`${year}-${month}-${day}`);
+};
 
 // Route to handle form submission
 router.post('/submitadmission', async (req, res) => {
@@ -830,21 +811,28 @@ router.post('/submitadmission', async (req, res) => {
     const { admissionNumber, firstName, lastName, dob, parentName, parentPhoneNumber, course, totalFee, paidFee, remainingFee, paidDate, remainingFeeDueDate, address } = req.body;
 
     try {
+        // Convert dates to ISO format
+        const isoDOB = convertToISODate(dob);
+        const isoPaidDate = convertToISODate(paidDate);
+        const isoRemainingFeeDueDate = convertToISODate(remainingFeeDueDate);
+
         // Create a new admission instance
         const admission = new Admission({
             admissionNumber,
             firstName,
             lastName,
-            dob,
+            dob: isoDOB,
             parentName,
             parentPhoneNumber,
             course,
             totalFee,
             paidFee,
             remainingFee,
-            paidDate,
-            remainingFeeDueDate,
-            address
+            paidDate: isoPaidDate,
+            remainingFeeDueDate: isoRemainingFeeDueDate,
+            address,
+            username: parentPhoneNumber,
+            password: dob // Use original dob as the password
         });
 
         // Save the admission data to the database
@@ -880,28 +868,28 @@ router.get('/admissiondetails', async (req, res) => {
                         margin: 0;
                         padding: 0;
                     }
-                    
+
                     h2 {
                         text-align: center;
                         margin-top: 20px;
                     }
-                    
+
                     table {
                         width: 100%;
                         border-collapse: collapse;
                         margin-top: 20px;
                     }
-                    
+
                     th, td {
                         padding: 12px 15px;
                         text-align: left;
                         border-bottom: 1px solid #ddd;
                     }
-                    
+
                     th {
                         background-color: #f2f2f2;
                     }
-                    
+
                     tr:hover {
                         background-color: #f2f2f2;
                     }
@@ -921,43 +909,35 @@ router.get('/admissiondetails', async (req, res) => {
                             <th>Course</th>
                             <th>Total Fee</th>
                             <th>Paid Fee</th>
-                             <th>Paid Date</th>
+                            <th>Paid Date</th>
                             <th>Remaining Fee</th>
                             <th>Remaining Fee Due Date</th>
                             <th>Address</th>
+                            <th>Username</th>
+                            <th>Password</th>
                         </tr>
                     </thead>
                     <tbody>`;
 
         // Loop through admission records and add table rows
         admissions.forEach(admission => {
-            // Format the date of birth
-            const dob = new Date(admission.dob);
-            const formattedDOB = `${dob.getDate()}/${dob.getMonth() + 1}/${dob.getFullYear()}`;
-
-            // Format the paid date
-            const paidDate = new Date(admission.paidDate);
-            const formattedPaidDate = `${paidDate.getDate()}/${paidDate.getMonth() + 1}/${paidDate.getFullYear()}`;
-
-            // Format the remaining fee due date
-            const remainingFeeDueDate = new Date(admission.remainingFeeDueDate);
-            const formattedRemainingFeeDueDate = `${remainingFeeDueDate.getDate()}/${remainingFeeDueDate.getMonth() + 1}/${remainingFeeDueDate.getFullYear()}`;
-
             htmlContent += `
                 <tr>
                     <td>${admission.admissionNumber}</td>
                     <td>${admission.firstName}</td>
                     <td>${admission.lastName}</td>
-                    <td>${formattedDOB}</td>
+                    <td>${formatDate(admission.dob)}</td>
                     <td>${admission.parentName}</td>
                     <td>${admission.parentPhoneNumber}</td>
                     <td>${admission.course}</td>
-                   <td>${admission.totalFee}</td>
+                    <td>${admission.totalFee}</td>
                     <td>${admission.paidFee}</td>
-                    <td>${formattedPaidDate}</td>
+                    <td>${formatDate(admission.paidDate)}</td>
                     <td>${admission.remainingFee}</td>
-                   <td>${formattedRemainingFeeDueDate}</td>
+                    <td>${formatDate(admission.remainingFeeDueDate)}</td>
                     <td>${admission.address}</td>
+                    <td>${admission.username}</td>
+                    <td>${admission.password}</td>
                 </tr>`;
         });
 
@@ -982,23 +962,23 @@ router.get('/admissiondetailsjson', async (req, res) => {
         const admissions = await Admission.find();
 
         // Convert admission records to JSON format
-        const admissionData = admissions.map(admission => {
-            return {
-                admissionNumber: admission.admissionNumber,
-                firstName: admission.firstName,
-                lastName: admission.lastName,
-                dob: admission.dob,
-                parentName: admission.parentName,
-                parentPhoneNumber: admission.parentPhoneNumber,
-                course: admission.course,
-                totalFee: admission.totalFee,
-                paidFee: admission.paidFee,
-                paidDate: admission.paidDate,
-                remainingFee: admission.remainingFee,
-                remainingFeeDueDate: admission.remainingFeeDueDate,
-                address: admission.address
-            };
-        });
+        const admissionData = admissions.map(admission => ({
+            admissionNumber: admission.admissionNumber,
+            firstName: admission.firstName,
+            lastName: admission.lastName,
+            dob: formatDate(admission.dob),
+            parentName: admission.parentName,
+            parentPhoneNumber: admission.parentPhoneNumber,
+            course: admission.course,
+            totalFee: admission.totalFee,
+            paidFee: admission.paidFee,
+            paidDate: formatDate(admission.paidDate),
+            remainingFee: admission.remainingFee,
+            remainingFeeDueDate: formatDate(admission.remainingFeeDueDate),
+            address: admission.address,
+            username: admission.username,
+            password: admission.password
+        }));
 
         // Send the admission data in JSON format as response
         res.json(admissionData);
@@ -1007,6 +987,10 @@ router.get('/admissiondetailsjson', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
+
+module.exports = router;
+
 
 
 // Route to render the delete admission data page
@@ -1700,82 +1684,6 @@ router.post('/exams', async (req, res) => {
 
 
 
-router.post('/sendOTP', async (req, res) => {
-    const { input } = req.body;
-
-    try {
-        // Fetch admission details from the admissiondetailsjson endpoint
-        const admissionDetailsResponse = await axios.get('https://api.way2employee.com/admissiondetailsjson');
-        const admissionDetails = admissionDetailsResponse.data;
-
-        // Find the admission document in the fetched data based on the admission number or parent phone number
-        const admissionDoc = admissionDetails.find(admission => admission.admissionNumber === input || admission.parentPhoneNumber === input);
-
-        // Check if admission document exists
-        if (!admissionDoc) {
-            return res.status(400).json({ error: 'Admission not found' });
-        }
-
-        // Generate OTP
-        const generatedOTP = otpGenerator.generate(6, { upperCase: false, specialChars: false });
-
-        // Send OTP to parent phone number (using Twilio Verify API)
-        const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-        const verification = await twilioClient.verify.services(process.env.TWILIO_VERIFY_SERVICE_SID)
-            .verifications
-            .create({ to: admissionDoc.parentPhoneNumber, channel: 'sms' });
-
-        // Log the verification status
-        console.log(verification.status);
-
-        return res.json({ message: 'OTP sent successfully' });
-    } catch (error) {
-        console.error('Error sending OTP:', error.message);
-        return res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
-
-
-// Verify OTP endpoint
-router.post('/verifyOTP', async (req, res) => {
-    const { input, otp } = req.body;
-
-    // Check if input (admission number or parent phone number) and OTP are provided
-    if (!input || !otp) {
-        return res.status(400).json({ error: 'Admission number or phone number and OTP are required' });
-    }
-
-    try {
-        // Find the admission document in the database based on admission number or parent phone number
-        const admissionDoc = await Admission.findOne({
-            $or: [
-                { admissionNumber: input },
-                { parentPhoneNumber: input }
-            ]
-        });
-
-        // Check if admission document exists
-        if (!admissionDoc) {
-            return res.status(400).json({ error: 'Admission not found' });
-        }
-
-        // Find the OTP document in the database
-        const otpDoc = await OTP.findOne({ parentPhoneNumber: admissionDoc.parentPhoneNumber });
-
-        // Check if OTP document exists and if the provided OTP matches
-        if (otpDoc && otp === otpDoc.otp) {
-            // OTP verification successful
-            return res.json({ message: 'OTP verification successful' });
-        } else {
-            // OTP verification failed
-            return res.status(400).json({ error: 'Invalid OTP' });
-        }
-    } catch (error) {
-        console.error('Error verifying OTP:', error.message);
-        return res.status(500).json({ error: 'Internal server error' });
-    }
-});
 
 
 
