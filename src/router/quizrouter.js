@@ -11,6 +11,11 @@ const otpGenerator = require('otp-generator');
 const twilio = require('twilio');
 const { Exam } = require('../db/model/exam');
 const axios = require('axios');
+
+const Notification = require('../db/model/notification');
+
+
+
 const otpSchema = new mongoose.Schema({
     parentPhoneNumber: String,
     otp: String,
@@ -1685,8 +1690,127 @@ router.post('/exams', async (req, res) => {
 
 
 
+router.get('/notification', (req, res) => {
+    const htmlContent = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Create Notification</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f4;
+                margin: 0;
+                padding: 0;
+            }
+    
+            .container {
+                max-width: 500px;
+                margin: 20px auto;
+                padding: 20px;
+                background-color: #fff;
+                border-radius: 5px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+    
+            h2 {
+                text-align: center;
+                margin-bottom: 20px;
+            }
+    
+            label {
+                display: block;
+                margin-bottom: 10px;
+                font-weight: bold;
+            }
+    
+            input[type="text"],
+            textarea {
+                width: calc(100% - 22px);
+                padding: 10px;
+                margin-bottom: 15px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                box-sizing: border-box;
+            }
+    
+            textarea {
+                resize: vertical;
+            }
+    
+            button[type="submit"] {
+                background-color: #4CAF50;
+                color: white;
+                padding: 12px 20px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                width: 100%;
+                font-size: 16px;
+                transition: background-color 0.3s;
+            }
+    
+            button[type="submit"]:hover {
+                background-color: #45a049;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>Create New Notification</h2>
+            <form action="/notification" method="post">
+                <label for="heading">Heading:</label>
+                <input type="text" id="heading" name="heading" required>
+    
+                <label for="paragraphs">Paragraphs:</label>
+                <textarea id="paragraphs" name="paragraphs" rows="5" required></textarea>
+    
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+    </body>
+    </html>
+    
+    `;
+    res.send(htmlContent);
+});
 
+router.post('/notification', async (req, res) => {
+    try {
+        // Extract data from the request body
+        const { heading, paragraphs } = req.body;
 
+        // Create a new instance of the Notification model with the extracted data
+        const newNotification = new Notification({
+            heading,
+            paragraphs
+        });
+
+        // Save the new notification to the database
+        const savedNotification = await newNotification.save();
+
+        // Respond with a success message
+        res.status(201).json({ message: 'Notification created successfully', notification: savedNotification });
+    } catch (error) {
+        // Handle any errors that occur during the process
+        res.status(500).json({ message: 'An error occurred while creating the notification', error: error.message });
+    }
+});
+
+router.get('/displaynotifications', async (req, res) => {
+    try {
+        // Fetch all notifications from the database
+        const notifications = await Notification.find();
+
+        // Respond with the notifications in JSON format
+        res.json(notifications);
+    } catch (error) {
+        // Handle any errors that occur during the process
+        res.status(500).json({ message: 'An error occurred while fetching notifications', error: error.message });
+    }
+});
 
 
 module.exports = router;
