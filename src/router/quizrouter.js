@@ -1705,7 +1705,7 @@ router.get('/notification', (req, res) => {
                 margin: 0;
                 padding: 0;
             }
-    
+
             .container {
                 max-width: 500px;
                 margin: 20px auto;
@@ -1714,18 +1714,18 @@ router.get('/notification', (req, res) => {
                 border-radius: 5px;
                 box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             }
-    
+
             h2 {
                 text-align: center;
                 margin-bottom: 20px;
             }
-    
+
             label {
                 display: block;
                 margin-bottom: 10px;
                 font-weight: bold;
             }
-    
+
             input[type="text"],
             textarea {
                 width: calc(100% - 22px);
@@ -1735,11 +1735,11 @@ router.get('/notification', (req, res) => {
                 border-radius: 4px;
                 box-sizing: border-box;
             }
-    
+
             textarea {
                 resize: vertical;
             }
-    
+
             button[type="submit"] {
                 background-color: #4CAF50;
                 color: white;
@@ -1751,7 +1751,7 @@ router.get('/notification', (req, res) => {
                 font-size: 16px;
                 transition: background-color 0.3s;
             }
-    
+
             button[type="submit"]:hover {
                 background-color: #45a049;
             }
@@ -1763,20 +1763,20 @@ router.get('/notification', (req, res) => {
             <form action="/notification" method="post">
                 <label for="heading">Heading:</label>
                 <input type="text" id="heading" name="heading" required>
-    
+
                 <label for="paragraphs">Paragraphs:</label>
                 <textarea id="paragraphs" name="paragraphs" rows="5" required></textarea>
-    
+
                 <button type="submit">Submit</button>
             </form>
         </div>
     </body>
     </html>
-    
     `;
     res.send(htmlContent);
 });
 
+// Route to handle form submission and save the notification to the database
 router.post('/notification', async (req, res) => {
     try {
         // Extract data from the request body
@@ -1785,7 +1785,7 @@ router.post('/notification', async (req, res) => {
         // Create a new instance of the Notification model with the extracted data
         const newNotification = new Notification({
             heading,
-            paragraphs
+            paragraphs: paragraphs.split('\n') // Split paragraphs by new line for multiple paragraphs
         });
 
         // Save the new notification to the database
@@ -1799,18 +1799,20 @@ router.post('/notification', async (req, res) => {
     }
 });
 
+
 router.get('/displaynotifications', async (req, res) => {
     try {
-        // Fetch all notifications from the database
-        const notifications = await Notification.find();
+        // Fetch all notifications sorted by createdAt in descending order
+        const notifications = await Notification.find().sort({ createdAt: -1 });
 
-        // Respond with the notifications in JSON format
-        res.json(notifications);
+        // Respond with the notifications
+        res.status(200).json(notifications);
     } catch (error) {
         // Handle any errors that occur during the process
         res.status(500).json({ message: 'An error occurred while fetching notifications', error: error.message });
     }
 });
+
 
 
 module.exports = router;
