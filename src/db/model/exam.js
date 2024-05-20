@@ -1,9 +1,8 @@
 const mongoose = require('mongoose');
 
 const examSchema = new mongoose.Schema({
-    admission: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Admission',
+    admissionNumber: {
+        type: String,
         required: true
     },
     examType: {

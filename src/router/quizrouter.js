@@ -1532,7 +1532,7 @@ router.get('/attendance/:admissionNumber', async (req, res) => {
 
 
 
-// Route to serve HTML form for creating exams for students
+// Route to handle submission of exam form
 router.get('/exam', (req, res) => {
     const formHtml = `
     <!DOCTYPE html>
@@ -1632,7 +1632,7 @@ router.get('/exam', (req, res) => {
             <h1>Exam Marks For Students</h1>
             <form id="examForm" action="/exams" method="POST">
                 <label for="studentAdmissionNumber">Student Admission Number:</label>
-                <input type="text" id="studentAdmissionNumber" name="studentAdmissionNumber" required><br><br>
+                <input type="text" id="studentAdmissionNumber" name="admissionNumber" required><br><br>
                 <label for="examType">Exam Type:</label>
                 <input type="text" id="examType" name="examType" required><br><br>
                 <label for="date">Date:</label>
@@ -1646,7 +1646,7 @@ router.get('/exam', (req, res) => {
                 <button type="button" id="addSubjectButton">Add Subject</button><br><br>
                 <label for="totalMarks">Total Marks:</label>
                 <input type="number" id="totalMarks" name="totalMarks" required><br><br>
-                <label for="rank">Total Marks:</label>
+                <label for="rank">Rank:</label>
                 <input type="number" id="rank" name="rank" required><br><br>
                 <button type="submit">Submit</button>
             </form>
@@ -1669,25 +1669,36 @@ router.get('/exam', (req, res) => {
         </script>
     </body>
     </html>
-    
     `;
     res.send(formHtml);
 });
 
+
 // Route to handle submission of exam form
 router.post('/exams', async (req, res) => {
     try {
-        const { studentAdmissionNumber, examType, date, subjects, totalMarks, rank } = req.body;
+        const { admissionNumber, examType, date, subjects, totalMarks, rank } = req.body;
+
+        // Check if admission number is provided
+        if (!admissionNumber) {
+            return res.status(400).json({ message: 'Admission number is required' });
+        }
 
         // Find the admission record associated with the provided admission number
-        const admission = await Admission.findOne({ admissionNumber: studentAdmissionNumber });
+        const admission = await Admission.findOne({ admissionNumber });
 
         if (!admission) {
             return res.status(400).json({ message: 'Admission not found' });
         }
 
+        // Check if an exam already exists for this admission and exam type
+        const existingExam = await Exam.findOne({ admissionNumber, examType });
+        if (existingExam) {
+            return res.status(400).json({ message: 'An exam already exists for this admission with the same exam type' });
+        }
+
         // Create new exam record
-        const exam = new Exam({ admission: admission._id, examType, date, subjects, totalMarks, rank });
+        const exam = new Exam({ admissionNumber, examType, date, subjects, totalMarks, rank });
 
         // Save exam record to the database
         await exam.save();
@@ -1699,6 +1710,7 @@ router.post('/exams', async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
 
 router.get('/examdata', async (req, res) => {
     try {
