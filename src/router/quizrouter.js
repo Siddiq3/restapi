@@ -13,6 +13,7 @@ const { Exam } = require('../db/model/exam');
 const axios = require('axios');
 
 const Notification = require('../db/model/notification');
+const Homework = require('../db/model/homework');
 
 
 
@@ -722,7 +723,8 @@ router.get('/admissionform', (req, res) => {
                 const lastName = document.getElementById('lastName').value;
                 const parentName = document.getElementById('parentName').value;
                 const parentPhoneNumber = document.getElementById('parentPhoneNumber').value;
-                const course = document.getElementById('course').value;
+                const class = document.getElementById('class').value;
+                const section = document.getElementById('section').value;
                 const dob = document.getElementById('dob').value;
                 const address = document.getElementById('address').value;
                 const totalFee = document.getElementById('totalFee').value;
@@ -732,7 +734,7 @@ router.get('/admissionform', (req, res) => {
                 const remainingFeeDueDate = document.getElementById('remainingFeeDueDate').value;
 
                 // Perform validation
-                if (!admissionNumber || !firstName || !lastName || !parentName || !parentPhoneNumber || !course || !dob || !address || !totalFee || !paidFee || !remainingFee || !paidDate || !remainingFeeDueDate) {
+                if (!admissionNumber || !firstName || !lastName || !parentName || !parentPhoneNumber || !class || !section || !dob || !address || !totalFee || !paidFee || !remainingFee || !paidDate || !remainingFeeDueDate) {
                     alert('All fields are required');
                     return false;
                 }
@@ -766,12 +768,18 @@ router.get('/admissionform', (req, res) => {
             <label for="parentPhoneNumber">Parent Phone Number:</label>
             <input type="text" id="parentPhoneNumber" name="parentPhoneNumber" required>
 
-            <label for="course">Course:</label>
-            <select id="course" name="course" required>
-                <option value="">Select Course</option>
-                <option value="Computer Science">Computer Science</option>
-                <option value="Engineering">Engineering</option>
-                <!-- Add more options as needed -->
+            <label for="className">Class:</label>
+<select id="className" name="className" required>
+    <option value="">Select Class</option>
+    <option value="NMMS">NMMS</option>
+</select>
+
+
+            <label for="section">Section:</label>
+            <select id="Section" name="section" required>
+                <option value="">Select section</option>                                    
+                <option value="Section A">Section A</option>
+                
             </select>
 
             <label for="totalFee">Total Fee:</label>
@@ -813,7 +821,7 @@ const convertToISODate = (dateString) => {
 // Route to handle form submission
 router.post('/submitadmission', async (req, res) => {
     // Extract data from the form submission
-    const { admissionNumber, firstName, lastName, dob, parentName, parentPhoneNumber, course, totalFee, paidFee, remainingFee, paidDate, remainingFeeDueDate, address } = req.body;
+    const { admissionNumber, firstName, lastName, dob, parentName, parentPhoneNumber, className, section, totalFee, paidFee, remainingFee, paidDate, remainingFeeDueDate, address } = req.body;
 
     try {
         // Convert dates to ISO format
@@ -829,7 +837,8 @@ router.post('/submitadmission', async (req, res) => {
             dob: isoDOB,
             parentName,
             parentPhoneNumber,
-            course,
+            class: className, // Rename variable to className
+            section,
             totalFee,
             paidFee,
             remainingFee,
@@ -849,6 +858,7 @@ router.post('/submitadmission', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
 
 
 // Route to display admission details in a table
@@ -911,7 +921,8 @@ router.get('/admissiondetails', async (req, res) => {
                             <th>Date of Birth</th>
                             <th>Parent Name</th>
                             <th>Parent Phone Number</th>
-                            <th>Course</th>
+                            <th>Class</th>
+                            <th>Section</th>
                             <th>Total Fee</th>
                             <th>Paid Fee</th>
                             <th>Paid Date</th>
@@ -934,7 +945,8 @@ router.get('/admissiondetails', async (req, res) => {
                     <td>${formatDate(admission.dob)}</td>
                     <td>${admission.parentName}</td>
                     <td>${admission.parentPhoneNumber}</td>
-                    <td>${admission.course}</td>
+                    <td>${admission.class}</td>
+                    <td>${admission.section}</td>
                     <td>${admission.totalFee}</td>
                     <td>${admission.paidFee}</td>
                     <td>${formatDate(admission.paidDate)}</td>
@@ -974,7 +986,8 @@ router.get('/admissiondetailsjson', async (req, res) => {
             dob: formatDate(admission.dob),
             parentName: admission.parentName,
             parentPhoneNumber: admission.parentPhoneNumber,
-            course: admission.course,
+            class: admission.class,
+            section: admission.section,
             totalFee: admission.totalFee,
             paidFee: admission.paidFee,
             paidDate: formatDate(admission.paidDate),
@@ -1813,6 +1826,255 @@ router.get('/displaynotifications', async (req, res) => {
     }
 });
 
+router.get('/addhomework', (req, res) => {
+    const htmlContent = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Add Homework</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    background-color: #f0f2f5;
+                    margin: 0;
+                    padding: 0;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100vh;
+                }
+                .container {
+                    background-color: #fff;
+                    padding: 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                    width: 100%;
+                    max-width: 600px;
+                }
+                h2 {
+                    text-align: center;
+                    color: #333;
+                    margin-bottom: 20px;
+                }
+                form {
+                    display: flex;
+                    flex-direction: column;
+                }
+                label {
+                    font-weight: bold;
+                    margin-bottom: 5px;
+                }
+                input[type="text"],
+                textarea,
+                input[type="date"] {
+                    width: 100%;
+                    padding: 10px;
+                    margin-bottom: 15px;
+                    border: 1px solid #ddd;
+                    border-radius: 5px;
+                }
+                textarea {
+                    resize: vertical;
+                }
+                button {
+                    padding: 10px 20px;
+                    margin-top: 10px;
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    transition: background-color 0.3s;
+                }
+                #addSubject {
+                    background-color: #007bff;
+                    color: #fff;
+                }
+                #addSubject:hover {
+                    background-color: #0056b3;
+                }
+                #submit {
+                    background-color: #28a745;
+                    color: #fff;
+                }
+                #submit:hover {
+                    background-color: #218838;
+                }
+                .removeSubject {
+                    background-color: #dc3545;
+                    color: #fff;
+                }
+                .removeSubject:hover {
+                    background-color: #c82333;
+                }
+                .subjectDescription {
+                    border: 1px solid #ddd;
+                    padding: 10px;
+                    margin-bottom: 10px;
+                    border-radius: 5px;
+                    background-color: #f9f9f9;
+                }
+                .subjectDescription:last-child {
+                    margin-bottom: 0;
+                }
+                .success-message {
+                    color: green;
+                    text-align: center;
+                    margin-top: 20px;
+                    display: none;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h2>Add New Homework</h2>
+                <form id="homeworkForm">
+                    <div id="subjectFields">
+                        <div class="subjectDescription">
+                            <label for="class">Class:</label>
+                            <input type="text" name="class[]" required>
+                            <label for="section">Section:</label>
+                            <input type="text" name="section[]" required>
+                            <label for="subject">Subject:</label>
+                            <input type="text" name="subject[]" required>
+                            <label for="description">Description:</label>
+                            <textarea name="description[]" rows="5" required></textarea>
+                            <label for="dueDate">Due Date:</label>
+                            <input type="date" name="dueDate[]" required>
+                            <button type="button" class="removeSubject">Remove</button>
+                        </div>
+                    </div>
+                    <button type="button" id="addSubject">Add Subject</button>
+                    <button type="submit" id="submit">Submit</button>
+                </form>
+                <div class="success-message" id="successMessage">Homework successfully added!</div>
+            </div>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const addSubjectButton = document.getElementById('addSubject');
+                    const subjectFields = document.getElementById('subjectFields');
+                    const homeworkForm = document.getElementById('homeworkForm');
+                    const successMessage = document.getElementById('successMessage');
+
+                    function removeSubjectDescription(event) {
+                        if (event.target.classList.contains('removeSubject')) {
+                            event.target.parentElement.remove();
+                        }
+                    }
+
+                    addSubjectButton.addEventListener('click', () => {
+                        const subjectDescription = document.createElement('div');
+                        subjectDescription.classList.add('subjectDescription');
+                        subjectDescription.innerHTML = \`
+                            <label for="class">Class:</label>
+                            <input type="text" name="class[]" required>
+                            <label for="section">Section:</label>
+                            <input type="text" name="section[]" required>
+                            <label for="subject">Subject:</label>
+                            <input type="text" name="subject[]" required>
+                            <label for="description">Description:</label>
+                            <textarea name="description[]" rows="5" required></textarea>
+                            <label for="dueDate">Due Date:</label>
+                            <input type="date" name="dueDate[]" required>
+                            <button type="button" class="removeSubject">Remove</button>
+                        \`;
+                        subjectFields.appendChild(subjectDescription);
+                        subjectDescription.querySelector('.removeSubject').addEventListener('click', removeSubjectDescription);
+                    });
+
+                    subjectFields.addEventListener('click', removeSubjectDescription);
+
+                    homeworkForm.addEventListener('submit', (event) => {
+                        event.preventDefault();
+
+                        const formData = new FormData(homeworkForm);
+                        const data = {
+                            class: formData.getAll('class[]'),
+                            section: formData.getAll('section[]'),
+                            subject: formData.getAll('subject[]'),
+                            description: formData.getAll('description[]'),
+                            dueDate: formData.getAll('dueDate[]')
+                        };
+
+                        fetch('/addhomework', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(data)
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                successMessage.style.display = 'block';
+                                homeworkForm.reset();
+                                subjectFields.innerHTML = \`
+                                    <div class="subjectDescription">
+                                        <label for="class">Class:</label>
+                                        <input type="text" name="class[]" required>
+                                        <label for="section">Section:</label>
+                                        <input type="text" name="section[]" required>
+                                        <label for="subject">Subject:</label>
+                                        <input type="text" name="subject[]" required>
+                                        <label for="description">Description:</label>
+                                        <textarea name="description[]" rows="5" required></textarea>
+                                        <label for="dueDate">Due Date:</label>
+                                        <input type="date" name="dueDate[]" required>
+                                        <button type="button" class="removeSubject">Remove</button>
+                                    </div>
+                                \`;
+                            } else {
+                                alert('An error occurred: ' + data.error);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('An error occurred while submitting the form.');
+                        });
+                    });
+                });
+            </script>
+        </body>
+        </html>
+    `;
+    res.send(htmlContent);
+});
+
+
+
+router.post('/addhomework', async (req, res) => {
+    try {
+        const { class: classList, section, subject, description, dueDate } = req.body;
+
+        if (!Array.isArray(classList) || !Array.isArray(section) || !Array.isArray(subject) || !Array.isArray(description) || !Array.isArray(dueDate)) {
+            throw new Error('Invalid data format');
+        }
+
+        const homeworks = subject.map((sub, index) => ({
+            class: classList[index],
+            section: section[index],
+            subject: sub,
+            description: description[index],
+            dueDate: new Date(dueDate[index])
+        }));
+
+        await Homework.insertMany(homeworks);
+        res.json({ success: true, message: 'Homework successfully added' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'An error occurred while creating homework', error: error.message });
+    }
+});
+
+// New route to get homework data
+router.get('/homework', async (req, res) => {
+    try {
+        const homeworks = await Homework.find({}).sort({ createdAt: -1 }); // Sort by `createdAt` in descending order
+        res.json({ success: true, data: homeworks });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'An error occurred while retrieving homework', error: error.message });
+    }
+});
 
 
 module.exports = router;

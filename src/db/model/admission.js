@@ -26,7 +26,12 @@ const admissionSchema = new mongoose.Schema({
         unique: true
     },
 
-    course: {
+    class: {
+        type: String,
+        required: true
+    },
+
+    section: {
         type: String,
         required: true
     },
