@@ -777,7 +777,7 @@ router.get('/admissionform', (req, res) => {
 
             <label for="section">Section:</label>
             <select id="Section" name="section" required>
-                <option value="">Select section</option>                                    
+                <option value="">Select section</option>                                
                 <option value="Section A">Section A</option>
                 
             </select>
@@ -1699,6 +1699,103 @@ router.post('/exams', async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
+router.get('/examdata', async (req, res) => {
+    try {
+        // Find all exams
+        const exams = await Exam.find();
+
+        // Send response
+        res.status(200).json({ exams });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+
+
+router.get('/delete-exam', (req, res) => {
+    const formHtml = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Delete Exam</title>
+        <style>
+            /* Your CSS styles here */
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Delete Exam</h1>
+            <form id="deleteExamForm" action="/delete-exam" method="POST">
+                <label for="examType">Exam Type:</label>
+                <input type="text" id="examType" name="examType" required><br><br>
+                <button type="submit">Delete Exam</button>
+            </form>
+        </div>
+    </body>
+    </html>
+    `;
+    res.send(formHtml);
+});
+
+
+
+router.post('/delete-exam', async (req, res) => {
+    try {
+        const { examType } = req.body;
+
+        // Find the exam by type and delete it
+        const deletedExam = await Exam.findOneAndDelete({ examType });
+
+        if (!deletedExam) {
+            return res.status(404).send(`<h2>Exam not found</h2><a href="/delete-exam">Go back to delete exam</a>`);
+        }
+
+        // Render HTML with success message
+        const successMessage = 'Exam deleted successfully';
+        const formHtml = generateDeleteExamForm(successMessage);
+        res.send(formHtml);
+    } catch (error) {
+        console.error(error);
+        // Render HTML with error message
+        const errorMessage = 'Internal server error';
+        const formHtml = generateDeleteExamForm(errorMessage);
+        res.status(500).send(formHtml);
+    }
+});
+
+// Function to generate HTML form for deleting exam with message
+function generateDeleteExamForm(message) {
+    return `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Delete Exam</title>
+        <style>
+            /* Your CSS styles here */
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Delete Exam</h1>
+            ${message ? `<div>${message}</div>` : ''}
+            <form id="deleteExamForm" action="/delete-exam" method="POST">
+                <label for="examType">Exam Type:</label>
+                <input type="text" id="examType" name="examType" required><br><br>
+                <button type="submit">Delete Exam</button>
+            </form>
+        </div>
+    </body>
+    </html>
+    `;
+}
+
 
 
 
