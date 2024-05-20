@@ -1694,7 +1694,10 @@ router.post('/exams', async (req, res) => {
         // Check if an exam already exists for this admission and exam type
         const existingExam = await Exam.findOne({ admissionNumber, examType });
         if (existingExam) {
-            return res.status(400).json({ message: 'An exam already exists for this admission with the same exam type' });
+            // If an exam already exists, update the existing exam with additional subjects
+            existingExam.subjects.push(...subjects);
+            await existingExam.save();
+            return res.status(200).json({ message: 'Subjects added to the existing exam successfully', exam: existingExam });
         }
 
         // Create new exam record
