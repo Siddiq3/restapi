@@ -633,8 +633,6 @@ router.delete('/quizdata/:question', async (req, res) => {
 
 //admission 
 
-
-// Route to render the admission form
 router.get('/admissionform', (req, res) => {
     const htmlContent = `
     <!DOCTYPE html>
@@ -713,37 +711,45 @@ router.get('/admissionform', (req, res) => {
                 color: red;
                 font-size: 12px;
                 margin-top: 5px;
+                display: none;
             }
         </style>
         <script>
             // Client-side validation function
             function validateForm() {
-                const admissionNumber = document.getElementById('admissionNumber').value;
-                const firstName = document.getElementById('firstName').value;
-                const lastName = document.getElementById('lastName').value;
-                const parentName = document.getElementById('parentName').value;
                 const parentPhoneNumber = document.getElementById('parentPhoneNumber').value;
-                const class = document.getElementById('class').value;
-                const section = document.getElementById('section').value;
-                const dob = document.getElementById('dob').value;
-                const address = document.getElementById('address').value;
-                const totalFee = document.getElementById('totalFee').value;
-                const paidFee = document.getElementById('paidFee').value;
-                const remainingFee = document.getElementById('remainingFee').value;
-                const paidDate = document.getElementById('paidDate').value;
-                const remainingFeeDueDate = document.getElementById('remainingFeeDueDate').value;
+                const phoneErrorMessage = document.getElementById('phoneErrorMessage');
 
-                // Perform validation
-                if (!admissionNumber || !firstName || !lastName || !parentName || !parentPhoneNumber || !class || !section || !dob || !address || !totalFee || !paidFee || !remainingFee || !paidDate || !remainingFeeDueDate) {
-                    alert('All fields are required');
+                // Validate parent phone number
+                if (!/^[0-9]{10}$/.test(parentPhoneNumber)) {
+                    phoneErrorMessage.style.display = 'block';
+                    phoneErrorMessage.textContent = 'Parent Phone Number must be exactly 10 digits and contain digits only.';
                     return false;
+                } else {
+                    phoneErrorMessage.style.display = 'none';
                 }
 
-                // Set username and password fields
-                document.getElementById('username').value = parentPhoneNumber;
-                document.getElementById('password').value = dob;
+                // Additional validation for other fields can go here
 
                 return true;
+            }
+
+            // Allow only numeric input in parentPhoneNumber field and limit to 10 digits
+            function validatePhoneNumberInput(event) {
+                const input = event.target;
+                const phoneErrorMessage = document.getElementById('phoneErrorMessage');
+
+                if (/[^0-9]/.test(input.value)) {
+                    input.value = input.value.replace(/[^0-9]/g, ''); // Remove non-numeric characters
+                    phoneErrorMessage.style.display = 'block';
+                    phoneErrorMessage.textContent = 'Parent Phone Number contains digits only.';
+                } else if (input.value.length > 10) {
+                    input.value = input.value.slice(0, 10); // Limit to 10 digits
+                    phoneErrorMessage.style.display = 'block';
+                    phoneErrorMessage.textContent = 'Parent Phone Number cannot exceed 10 digits.';
+                } else {
+                    phoneErrorMessage.style.display = 'none';
+                }
             }
         </script>
     </head>
@@ -766,20 +772,19 @@ router.get('/admissionform', (req, res) => {
             <input type="text" id="parentName" name="parentName" required>
 
             <label for="parentPhoneNumber">Parent Phone Number:</label>
-            <input type="text" id="parentPhoneNumber" name="parentPhoneNumber" required>
+            <input type="text" id="parentPhoneNumber" name="parentPhoneNumber" pattern="^[0-9]{10}$" oninput="validatePhoneNumberInput(event)" required>
+            <div id="phoneErrorMessage" class="error-message"></div>
 
             <label for="className">Class:</label>
-<select id="className" name="className" required>
-    <option value="">Select Class</option>
-    <option value="NMMS">NMMS</option>
-</select>
-
+            <select id="className" name="className" required>
+                <option value="">Select Class</option>
+                <option value="NMMS">NMMS</option>
+            </select>
 
             <label for="section">Section:</label>
-            <select id="Section" name="section" required>
-                <option value="">Select section</option>                                
+            <select id="section" name="section" required>
+                <option value="">Select section</option>
                 <option value="Section A">Section A</option>
-                
             </select>
 
             <label for="totalFee">Total Fee:</label>
@@ -811,6 +816,7 @@ router.get('/admissionform', (req, res) => {
     `;
     res.send(htmlContent);
 });
+
 
 // Route to handle form submission
 const convertToISODate = (dateString) => {
