@@ -23,7 +23,7 @@ const admissionSchema = new mongoose.Schema({
     parentPhoneNumber: {
         type: String,
         required: true,
-        unique: true
+       
     },
 
     class: {
