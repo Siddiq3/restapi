@@ -1,22 +1,27 @@
 const express = require('express');
 require('dotenv').config();
-
 const cors = require('cors');
-const Quizapi = require('./db/model/quizmodels');
-require("../src/db/conn");
+require('./db/conn'); // Ensure this points to your actual database connection file
 
+const quizRouter = require('./router/quizrouter');
+const authRouter = require('./router/authRouter');
+const propertyRouter = require('./router/propertyRouter');
 
-
-const router = require('./router/quizrouter');
 const app = express();
 
-
-//dynamic port
+// Dynamic port
 const port = process.env.PORT || 1303;
+
 app.use(express.json());
 app.use(cors());
-app.use(router);
-app.listen(port,
-    () => {
-        console.log((`connection is live at port no.${port}`));
-    })
+
+// Existing routes
+app.use(quizRouter);
+
+// New routes for Rentify
+app.use('/api/auth', authRouter);
+app.use('/api/properties', propertyRouter);
+
+app.listen(port, () => {
+    console.log(`Connection is live at port no. ${port}`);
+});
