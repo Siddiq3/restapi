@@ -1,11 +1,11 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Users = require('../db/model/users');
+const crypto = require('crypto');
 
-
-const { v4: uuidv4 } = require('uuid');
-const secretKey = uuidv4();
-console.log(secretKey); // Output: a randomly generated UUID
+// Generate a secure random string for JWT secret key
+const secretKey = crypto.randomBytes(32).toString('hex');
+console.log(secretKey); // Output: a securely generated random string
 
 exports.register = async (req, res) => {
   try {
@@ -34,4 +34,3 @@ exports.login = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
